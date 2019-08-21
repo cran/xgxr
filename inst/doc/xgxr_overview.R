@@ -34,7 +34,7 @@ library(dplyr)
 ## ------------------------------------------------------------------------
 dirs <- list(
   parent_dir = tempdir(),
-  rscript_dir = "./",
+  rscript_dir = tempdir(),
   rscript_name = "example.R",
   results_dir = tempdir(),
   filename_prefix = "example_")

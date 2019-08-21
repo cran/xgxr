@@ -22,10 +22,11 @@
 #' @return ggplot2 plot object
 #'
 #' @examples
-#' dirs <- list(parent_dir  = tempdir(),
-#'              rscript_dir = tempdir(),
+#' directory = tempdir()
+#' dirs <- list(parent_dir  = directory,
+#'              rscript_dir = directory,
 #'              rscript_name = "example.R",
-#'              results_dir = tempdir(),
+#'              results_dir = directory,
 #'              filename_prefix = "example_")
 #' data <- data.frame(x = c(1, 2), y = c(1, 2))
 #' xgx_save_table(data, dirs = dirs, filename_main = "test")
@@ -55,13 +56,12 @@ xgx_save_table <- function(data, dirs = NULL, filename_main = NULL) {
     filename_main <- "unnamed_table_"
   }
 
-  filedir <- file.path(dirs$results_dir)
   dirs$filename <- paste0(dirs$filename_prefix, filename_main, ".csv")
 
   caption <- c("", dirs$parent_dir,
-               paste0(dirs$rscript_dir, dirs$rscript_name),
-               paste0(dirs$results_dir, dirs$filename),
-               paste0("Created: ", Sys.time()))
+               file.path(dirs$rscript_dir, dirs$rscript_name),
+               file.path(dirs$results_dir, dirs$filename),
+               file.path("Created: ", Sys.time()))
 
   caption_row <- data[1, ] %>%
     dplyr::mutate_all(function(x) {x <- ""})
@@ -73,7 +73,7 @@ xgx_save_table <- function(data, dirs = NULL, filename_main = NULL) {
     dplyr::mutate_all(as.character) %>%
     dplyr::bind_rows(caption_row)
 
-  utils::write.csv(data_append, paste0(filedir, dirs$filename),
+  utils::write.csv(data_append, file.path(dirs$results_dir, dirs$filename),
                    quote = FALSE, row.names = FALSE)
   return(data_append)
 }

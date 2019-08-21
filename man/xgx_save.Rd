@@ -50,10 +50,11 @@ ggplot2 plot object
 Saving plot, automatically annotating the status and denoting the filenames
 }
 \examples{
-dirs <- list(parent_dir   = tempdir(),
-             rscript_dir  = tempdir(),
+directory = tempdir()
+dirs <- list(parent_dir  = directory,
+             rscript_dir = directory,
              rscript_name = "example.R",
-             results_dir  = tempdir(),
+             results_dir = directory,
              filename_prefix = "example_")
 data <- data.frame(x = 1:1000, y = stats::rnorm(1000))
 ggplot2::ggplot(data = data, ggplot2::aes(x = x, y = y)) +

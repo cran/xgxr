@@ -203,12 +203,6 @@ g = ggplot(data = pk_vs_pd_data_day85, aes(x = Concentration, y = Response)) +
 print(g)
 
 ## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
-gfacet = g %+% 
-  pk_vs_pd_data + 
-  facet_grid(~DAY_label)
-print(g)
-
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
 gAUC = g + 
   aes(x = AUC_last) +
   xlab(auc_label)
