@@ -90,7 +90,7 @@ ggplot(data = pk_data_cycle1, aes(x     = NOMTIME,
   xgx_annotate_status(status)
 
 ## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
-ggplot(data = pk_data_cycle1, aes(x = NOMTIME, y = LIDV)) +
+ggplot(data = pk_data_cycle1, aes(x = TIME, y = LIDV)) +
   geom_line(aes(group = ID), color = rgb(0.5, 0.5, 0.5), size = 1, alpha = 0.3) +
   scale_shape_manual(values = c(1, 8)) +
   scale_color_manual(values = c("grey50", "red")) +
