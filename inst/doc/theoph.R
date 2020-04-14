@@ -1,11 +1,11 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7
 )
 
-## ----data_assignments, echo=TRUE, warning=FALSE, message=FALSE-----------
+## ----data_assignments, echo=TRUE, warning=FALSE, message=FALSE----------------
 library(xgxr)
 library(ggplot2)
 library(dplyr)
@@ -13,7 +13,7 @@ library(dplyr)
 # setting ggplot theme
 xgx_theme_set()
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE----------------------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE---------------------------------
 # units of dataset
 time_units_dataset <- "hours"
 time_units_plot    <- "days"
@@ -56,7 +56,7 @@ data <- data %>%
                        # define order of treatment factor
   
 # for plotting the PK data
-data_pk <- filter(data, CMT == 2)
+data_pk <- filter(data, CMT == 2, TIME > 0)
   
 # NCA
 NCA <- data %>%
@@ -71,7 +71,7 @@ NCA <- data %>%
   mutate(VALUE_NORM = VALUE / DOSE) %>%
   ungroup()
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 check <- xgx_check_data(data,covariates)
 
 knitr::kable(check$summary)
@@ -79,20 +79,19 @@ knitr::kable(head(check$data_subset))
 knitr::kable(check$cts_covariates)
 knitr::kable(check$cat_covariates)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 glin <- ggplot(data = data_pk, aes(x = NOMTIME,
                                    y = LIDV,
                                    group = DOSE,
                                    color = DOSEREG_REV)) +
-  xgx_stat_ci() + 
+  stat_summary() + 
   xgx_scale_x_time_units(time_units_dataset, time_units_plot) +
   labs(y = conc_label, color = "Dose")
 
-glog <- glin + xgx_scale_y_log10()
-
+glog <- glin + scale_y_log10()
 gridExtra::grid.arrange(gridExtra::arrangeGrob(glin, glog, nrow = 1))
 
-## ----  echo=TRUE, warning=FALSE, message=FALSE, fig.height=4-------------
+## ----  echo=TRUE, warning=FALSE, message=FALSE, fig.height=4------------------
 if (exists("data_pk_rich")) {
   ggplot(data_pk_rich, aes(x = PROFTIME,
                            y = LIDV,
@@ -105,7 +104,7 @@ if (exists("data_pk_rich")) {
     labs(y = conc_label, color = "Dose")
 }
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = data_pk, aes(x = TIME,
                            y = LIDV,
                            group = interaction(ID, CYCLE))) +
@@ -121,7 +120,7 @@ ggplot(data = data_pk, aes(x = TIME,
   scale_shape_manual(values = c(1, 8)) +
   scale_color_manual(values = c("grey50", "red"))
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=5--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=5-------------------
 ggplot(data = data_pk, aes(x = TIME,
                            y = LIDV,
                            group = interaction(ID, CYCLE),
@@ -133,7 +132,7 @@ ggplot(data = data_pk, aes(x = TIME,
   xgx_scale_y_log10() +
   labs(y = conc_label, color = "Dose", shape = "Censoring")
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=4--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=4-------------------
 if (exists("data_pk_rich")) {
   ggplot(data = data_pk_rich, aes(x = TIME,
                                   y = LIDV,
@@ -148,7 +147,7 @@ if (exists("data_pk_rich")) {
     labs(y = conc_label, color = "Dose", shape = "Censoring")
 }
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = data_pk, aes(x = TIME,
                            y = LIDV,
                            group = interaction(ID, CYCLE),
@@ -164,7 +163,7 @@ ggplot(data = data_pk, aes(x = TIME,
   scale_color_manual(values = c("grey50", "red")) + 
   theme(legend.position = "none")
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = data_pk, aes(x = NOMTIME,
                            y = LIDVNORM,
                            group = DOSEREG_REV,
@@ -174,7 +173,7 @@ ggplot(data = data_pk, aes(x = NOMTIME,
   xgx_scale_y_log10() +
   labs(y = conc_label, color = "Dose")
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=4--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=4-------------------
 if (exists("data_pk_rich")) {
   ggplot(data_pk_rich, aes(x = NOMTIME,
                            y = LIDVNORM,
@@ -187,7 +186,7 @@ if (exists("data_pk_rich")) {
     labs(y = conc_label, color = "Dose")
 }
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=7--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=7-------------------
 ggplot(data = data_pk, aes(x = TIME, y = LIDV)) +
   geom_line() +
   geom_point(aes(color = factor(CENS), shape = factor(CENS))) + 
@@ -199,7 +198,7 @@ ggplot(data = data_pk, aes(x = TIME, y = LIDV)) +
   scale_shape_manual(values = c(1, 8)) +
   scale_color_manual(values = c("black", "red"))
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=4--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=4-------------------
 if (!exists("NCA")) {
   warning("For PK data exploration, it is highly recommended to perform an NCA")
 } else {
@@ -212,7 +211,7 @@ if (!exists("NCA")) {
     labs(x = dose_label, y = concnorm_label)
 }
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=5--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=5-------------------
 if (!exists("NCA")) {
   warning("For covariate exploration, it is highly recommended to perform an NCA")
 } else {

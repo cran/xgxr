@@ -1,11 +1,11 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7
 )
 
-## ---- warning=FALSE, message=FALSE---------------------------------------
+## ---- warning=FALSE, message=FALSE--------------------------------------------
 library(xgxr)
 library(ggplot2)
 library(dplyr)
@@ -17,7 +17,7 @@ status <- "DRAFT"
 # ggplot settings
 xgx_theme_set()
 
-## ---- warning=FALSE, message=FALSE---------------------------------------
+## ---- warning=FALSE, message=FALSE--------------------------------------------
 pkpd_data <- case1_pkpd %>%
   arrange(DOSE) %>%
   select(-IPRED) %>%
@@ -81,7 +81,7 @@ w100_label         <- "WEIGHTB>100"
 pd_label           <- "FEV1 (mL)"
 cens_label         <- "Censored"
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pk_data_cycle1, aes(x     = NOMTIME,
                                   y     = LIDV,
                                   group = DOSE,
@@ -92,7 +92,7 @@ ggplot(data = pk_data_cycle1, aes(x     = NOMTIME,
   labs(y = conc_label, color = trtact_label) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pk_data_cycle1, aes(x = TIME, y = LIDV)) +
   geom_line(aes(group = ID), color = "grey50", size = 1, alpha = 0.3) +
   geom_point(aes(color = factor(CENS), shape = factor(CENS))) + 
@@ -106,7 +106,7 @@ ggplot(data = pk_data_cycle1, aes(x = TIME, y = LIDV)) +
   facet_grid(.~TRTACT_low2high) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pk_data_cycle1,
        aes(x = NOMTIME,
            y = LIDVNORM,
@@ -119,7 +119,7 @@ ggplot(data = pk_data_cycle1,
   xgx_annotate_status(status)
 
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = NCA, aes(x = DOSE, y = VALUE_NORM)) + 
   geom_boxplot(aes(group = DOSE)) +
   geom_smooth(method = "lm", color = "black") +
@@ -128,7 +128,7 @@ ggplot(data = NCA, aes(x = DOSE, y = VALUE_NORM)) +
   theme(axis.title.y = element_blank()) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = NCA[!NCA$DOSE == 3 & !NCA$DOSE == 10 , ],
        aes(x = DOSE, y = VALUE_NORM)) +
   geom_boxplot(aes(group = DOSE)) +
@@ -138,7 +138,7 @@ ggplot(data = NCA[!NCA$DOSE == 3 & !NCA$DOSE == 10 , ],
   theme(axis.title.y = element_blank()) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pk_data_cycle1, aes(x = NOMTIME,
                                    y = LIDV,
                                    group = WEIGHTB > 100,
@@ -150,7 +150,7 @@ ggplot(data = pk_data_cycle1, aes(x = NOMTIME,
   labs(y = conc_label, color = w100_label) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pd_data, aes(x     = NOMTIME,
                            y     = LIDV,
                            group = DOSE,
@@ -161,7 +161,7 @@ ggplot(data = pd_data, aes(x     = NOMTIME,
   labs(y = pd_label, color = trtact_label) + 
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pd_data, aes(x = NOMTIME, y = LIDV, group = ID)) +
   geom_line(alpha = 0.5) +
   geom_point(alpha = 0.5) +
@@ -171,7 +171,7 @@ ggplot(data = pd_data, aes(x = NOMTIME, y = LIDV, group = ID)) +
   labs(y = pd_label, color = trtact_label) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pd_data_baseline_day85, aes(x = DOSE,
                                           y = LIDV,
                                           group = DOSE)) +
@@ -180,14 +180,14 @@ ggplot(data = pd_data_baseline_day85, aes(x = DOSE,
   labs(x = dose_label, y = pd_label, color = trtact_label) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pd_data, aes(x = DOSE, y = LIDV, group = DOSE)) +
   xgx_geom_ci(conf_level = 0.95) +
   facet_grid(~DAY_label) +
   labs(x = dose_label, y = pd_label, color = trtact_label) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 ggplot(data = pd_data_baseline_day85, aes(x = DOSE,
                                           y = LIDV,
                                           group = WEIGHTB > 100,
@@ -197,7 +197,7 @@ ggplot(data = pd_data_baseline_day85, aes(x = DOSE,
   labs(x = dose_label, y = pd_label, color = w100_label) +
   xgx_annotate_status(status)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 g = ggplot(data = pk_vs_pd_data_day85, aes(x = Concentration, y = Response)) +
   geom_point(aes(color = TRTACT_high2low, shape = factor(CENS))) +
   geom_smooth(color="black",shape=NULL) +
@@ -206,12 +206,12 @@ g = ggplot(data = pk_vs_pd_data_day85, aes(x = Concentration, y = Response)) +
   xgx_annotate_status(status)
 print(g)
 
-## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3--------------
+## ---- echo=TRUE, warning=FALSE, message=FALSE, fig.height=3-------------------
 gAUC = g + 
   aes(x = AUC_last) +
   xlab(auc_label)
 print(gAUC)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 sessionInfo()
 
