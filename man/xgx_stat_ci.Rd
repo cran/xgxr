@@ -9,10 +9,14 @@ xgx_stat_ci(
   data = NULL,
   conf_level = 0.95,
   distribution = "normal",
+  bins = NULL,
+  breaks = NULL,
   geom = list("point", "line", "errorbar"),
   position = "identity",
   fun.args = list(),
+  fun.data = NULL,
   na.rm = FALSE,
+  orientation = "x",
   show.legend = NA,
   inherit.aes = TRUE,
   ...
@@ -49,6 +53,10 @@ data to the log space first. The "binomial" option will use the
 confidence 
 intervals. Note: binomial data must be numeric and contain only 1's and 0's.}
 
+\item{bins}{number of bins to cut up the x data, cuts data into quantiles.}
+
+\item{breaks}{breaks to cut up the x data, if this option is used, bins is ignored}
+
 \item{geom}{Use to override the default geom. Can be a list of multiple 
 geoms, e.g. list("point","line","errorbar"), which is the default.}
 
@@ -57,8 +65,20 @@ a call to a position adjustment function.}
 
 \item{fun.args}{Optional additional arguments passed on to the functions.}
 
+\item{fun.data}{A function that is given the complete data and should return 
+a data frame with variables ymin, y, and ymax.}
+
 \item{na.rm}{If FALSE, the default, missing values are removed with a 
 warning. If TRUE, missing values are silently removed.}
+
+\item{orientation}{The orientation of the layer, passed on to ggplot2::stat_summary. 
+Only implemented for ggplot2 v.3.3.0 and later. The default ("x") summarizes y values over
+x values (same behavior as ggplot2 v.3.2.1 or earlier). Setting \code{orientation = "y"} will 
+summarize x values over y values, which may be useful in some situations where you want to flip
+the axes, e.g. to create forest plots. Setting \code{orientation = NA} will try to automatically
+determine the orientation from the aesthetic mapping (this is more stable for ggplot2 v.3.3.2
+compared to v.3.3.0).
+See \code{\link[ggplot2:stat_summary]{stat_summary}} (v.3.3.0 or greater) for more information.}
 
 \item{show.legend}{logical. Should this layer be included in the legends? 
 NA, the default, includes if any aesthetics are mapped. FALSE never 
@@ -122,5 +142,59 @@ xgx_plot(data, ggplot2::aes(x = x, y = y)) +
   xgx_stat_ci(conf_level = 0.95, distribution = "binomial", 
               ggplot2::aes(color = factor(group)),
               position = ggplot2::position_dodge(width = 0.5))
+              
+# plotting ordinal or multinomial data
+set.seed(12345) 
+data = data.frame(x = 120*exp(stats::rnorm(100,0,1)), 
+              response = sample(c("Mild","Moderate","Severe"), 100, replace = TRUE),
+              covariate = sample(c("Male","Female"), 100, replace = TRUE))
+  
+xgx_plot(data = data) + 
+  xgx_stat_ci(mapping = ggplot2::aes(x = x, response = response, colour = covariate), 
+              distribution = "ordinal", bins = 4) + 
+  ggplot2::scale_y_continuous(labels = scales::percent_format()) + ggplot2::facet_wrap(~response)
+
+xgx_plot(data = data) + 
+  xgx_stat_ci(mapping = ggplot2::aes(x = x, response = response, colour = response), 
+              distribution = "ordinal", bins = 4) + 
+  ggplot2::scale_y_continuous(labels = scales::percent_format()) + ggplot2::facet_wrap(~covariate)
+
+# Example plotting categorical vs categorical data
+set.seed(12345)
+data = data.frame(x = 120*exp(stats::rnorm(100,0,1)),
+                  response = sample(c("Trt1", "Trt2", "Trt3"), 100, replace = TRUE),
+                  covariate = factor(
+                    sample(c("White","Black","Asian","Other"), 100, replace = TRUE),
+                                     levels = c("White", "Black", "Asian", "Other")))
+
+xgx_plot(data = data) +
+  xgx_stat_ci(mapping = ggplot2::aes(x = response, response = covariate),
+              distribution = "ordinal") +
+  xgx_stat_ci(mapping = ggplot2::aes(x = 1, response = covariate), geom = "hline",
+              distribution = "ordinal") +
+  ggplot2::scale_y_continuous(labels = scales::percent_format()) + 
+  ggplot2::facet_wrap(~covariate) + 
+  ggplot2::xlab("Treatment group") + 
+  ggplot2::ylab("Percent of subjects by category")
+
+# Same example with orientation flipped (only works for ggplot2 v.3.3.0 or later)
+# only run if ggplot2 v.3.3.0 or later
+ggplot2_geq_v3.3.0 <- utils::compareVersion(
+  as.character(utils::packageVersion("ggplot2")), '3.3.0') >= 0
+
+if(ggplot2_geq_v3.3.0){
+
+xgx_plot(data = data) +
+xgx_stat_ci(mapping = ggplot2::aes(y = response, response = covariate), orientation = "y",
+            distribution = "ordinal") +
+  xgx_stat_ci(mapping = ggplot2::aes(y = 1, response = covariate), orientation = "y", 
+              geom = "vline", distribution = "ordinal") +
+  ggplot2::scale_x_continuous(labels = scales::percent_format()) +
+  ggplot2::facet_wrap(~covariate) +
+  ggplot2::ylab("Treatment group") +
+  ggplot2::xlab("Percent of subjects by category")
+  
+}
+
  
 }

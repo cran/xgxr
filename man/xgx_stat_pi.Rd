@@ -10,6 +10,8 @@ xgx_stat_pi(
   percent_level = 0.95,
   geom = list("line", "ribbon"),
   position = "identity",
+  bins = NULL,
+  breaks = NULL,
   fun.args = list(),
   na.rm = FALSE,
   show.legend = NA,
@@ -44,6 +46,10 @@ geoms, e.g. list("line","ribbon"), which is the default.}
 
 \item{position}{Position adjustment, either as a string, or the result of 
 a call to a position adjustment function.}
+
+\item{bins}{number of bins to cut up the x data, cuts data into quantiles.}
+
+\item{breaks}{breaks to cut up the x data, if this option is used, bins is ignored}
 
 \item{fun.args}{Optional additional arguments passed on to the functions.}
 

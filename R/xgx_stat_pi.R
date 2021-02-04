@@ -27,6 +27,8 @@
 #' geoms, e.g. list("line","ribbon"), which is the default.
 #' @param position Position adjustment, either as a string, or the result of 
 #' a call to a position adjustment function.
+#' @param bins number of bins to cut up the x data, cuts data into quantiles.
+#' @param breaks breaks to cut up the x data, if this option is used, bins is ignored
 #' @param fun.args Optional additional arguments passed on to the functions.
 #' @param na.rm If FALSE, the default, missing values are removed with a 
 #' warning. If TRUE, missing values are silently removed.
@@ -76,6 +78,8 @@
 xgx_stat_pi <- function(mapping = NULL, data = NULL, percent_level = 0.95,
                         geom = list("line", "ribbon"),
                         position = "identity",
+                        bins = NULL,
+                        breaks = NULL,
                         fun.args = list(),
                         na.rm = FALSE,
                         show.legend = NA,
@@ -84,7 +88,6 @@ xgx_stat_pi <- function(mapping = NULL, data = NULL, percent_level = 0.95,
   if (!(percent_level >= 0 && percent_level <= 1)) {
     stop("percent_level should be greater or equal 0 and less or equal 1")
   }
-  
   
   percent_int <- function(y, percent_level) {
     percentile_value <- max(percent_level, 1 - percent_level)
@@ -98,39 +101,20 @@ xgx_stat_pi <- function(mapping = NULL, data = NULL, percent_level = 0.95,
       )
   }
   
-  ret <- list()
-  for (igeom in geom) {
-    temp <- ggplot2::stat_summary(mapping = mapping, data = data,
-                                  geom = igeom, position = position, ...,
-                                  fun.args = list(), na.rm = na.rm,
-                                  show.legend = show.legend,
-                                  inherit.aes = inherit.aes,
-                                  fun.data = function(y) percent_int(y, percent_level)
-    )
-    
-    if (igeom == "point") {
-      if (is.null(temp$aes_params$size)) temp$aes_params$size <- 2
-    }
-    else if (igeom == "line") {
-      if (is.null(temp$aes_params$size)) temp$aes_params$size <- 1
-    }
-    else if (igeom == "errorbar") {
-      if (is.null(temp$aes_params$size)) temp$aes_params$size <- 1
-      if (is.null(temp$geom_params$width)) {
-        temp$geom_params$width <- 0
-      }
-    }
-    else if (igeom == "ribbon") {
-      if(is.null(temp$aes_params$alpha)) temp$aes_params$alpha <- 0.25
-    }
-    else if (igeom == "pointrange") {
-      if(is.null(temp$aes_params$size)) temp$aes_params$size <- 1
-      temp$geom$geom_params$fatten <- 2
-    }
-    
-    
-    ret[[paste0("geom_", igeom)]] <- temp
-  }
-  
+  ret <- xgx_stat_ci(mapping = mapping,
+                     data = data,
+                     conf_level = NULL,
+                     distribution = "normal",
+                     bins = bins,
+                     breaks = breaks,
+                     geom = geom,
+                     position = position,
+                     fun.args = fun.args,
+                     fun.data = function(y) percent_int(y, percent_level),
+                     na.rm = na.rm,
+                     show.legend = show.legend,
+                     inherit.aes = inherit.aes,
+                     ...)
+
   return(ret)
 }

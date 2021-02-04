@@ -20,7 +20,7 @@ xgx_theme_set()
 ## ---- warning=FALSE, message=FALSE--------------------------------------------
 pkpd_data <- case1_pkpd %>%
   arrange(DOSE) %>%
-  select(-IPRED) %>%
+  subset(,-IPRED) %>%
   mutate(TRTACT_low2high = factor(TRTACT, levels = unique(TRTACT)),
          TRTACT_high2low = factor(TRTACT, levels = rev(unique(TRTACT))),
          DAY_label = paste("Day", PROFDAY),
@@ -44,7 +44,7 @@ pd_data_baseline_day85 <- pkpd_data %>%
 
 pk_vs_pd_data <- pkpd_data %>%
   filter(!is.na(LIDV)) %>%
-  select(-c(EVENTU,NAME)) %>%
+  subset(,-c(EVENTU,NAME)) %>%
   spread(CMT,LIDV) %>%
   rename(Concentration = `2`, Response = `3`)
 
@@ -60,7 +60,7 @@ NCA <- pk_data_cycle1 %>%
 AUC_last <- NCA %>%
   filter(PARAM == "AUC_last") %>%
   rename(AUC_last = VALUE) %>%
-  select(-c(DOSE,PARAM,VALUE_NORM))
+  subset(,-c(DOSE,PARAM,VALUE_NORM))
 
 pk_vs_pd_data_day85 <- pk_vs_pd_data %>%
   filter(DAY_label == "Day 85",

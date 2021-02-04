@@ -30,6 +30,9 @@
 #' @export
 xgx_dirs2char <- function(dirs, include_time = TRUE) {
   # check to make sure all filenames dirs
+  if (typeof(dirs)!="list") {
+    stop("dirs variable must be a list")
+  }
   missing_filenames <- setdiff(c("parent_dir", "rscript_dir", "rscript_name",
                                  "results_dir", "filename"),
                               names(dirs))
@@ -38,8 +41,8 @@ xgx_dirs2char <- function(dirs, include_time = TRUE) {
   }
 
   output <- paste0(dirs$parent_dir, "\n",
-                   dirs$rscript_dir, dirs$rscript_name, "\n",
-                   dirs$results_dir, dirs$filename)
+                   file.path(dirs$rscript_dir, dirs$rscript_name), "\n",
+                   file.path(dirs$results_dir, dirs$filename))
 
   if (include_time) {
     output <- paste0(output, "\n", "Created: ", Sys.time())

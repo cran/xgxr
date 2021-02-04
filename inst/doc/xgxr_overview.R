@@ -6,9 +6,10 @@ knitr::opts_chunk$set(
 )
 
 ## ---- message=FALSE-----------------------------------------------------------
-library(xgxr)
-library(ggplot2)
+library(tidyr)
 library(dplyr)
+library(ggplot2)
+library(xgxr)
 
 ## -----------------------------------------------------------------------------
 # xgx_create_rmarkdown(type = "pk", open_file = FALSE)
@@ -114,6 +115,109 @@ data <- data.frame(x = rep(c(1, 2, 3), each = 20),
                   group = rep(1:3, 20))
 xgx_plot(data, aes(x = x, y = y)) + 
  xgx_stat_ci(conf_level = 0.95, distribution = "binomial")
+
+
+# Example plotting the percent of subjects in a categorical covariate group by treatment.
+
+set.seed(12345)
+data = data.frame(x = 120*exp(rnorm(100,0,1)),
+                 response = sample(c("Trt1", "Trt2", "Trt3"), 100, replace = TRUE),
+                 covariate = factor(sample(c("White","Black","Asian","Other"), 100, replace = TRUE), 
+                                    levels = c("White", "Black", "Asian", "Other")))
+
+xgx_plot(data = data) +
+ xgx_stat_ci(mapping = aes(x = response, response = covariate),
+             distribution = "ordinal") +
+ xgx_stat_ci(mapping = aes(x = 1, response = covariate), geom = "hline",
+             distribution = "ordinal") +
+ scale_y_continuous(labels = scales::percent_format()) + 
+ facet_wrap(~covariate) + 
+ xlab("Treatment group") + ylab("Percent of subjects by category")
+
+
+## -----------------------------------------------------------------------------
+
+# plotting 
+set.seed(12345)
+data = data.frame(x = 120*exp(rnorm(100,0,1)),
+              response = sample(c("Mild","Moderate","Severe"), 100, replace = TRUE),
+              covariate = sample(c("Male","Female"), 100, replace = TRUE)) %>%
+  mutate(y = (50 + 20*x/(200 + x))*exp(rnorm(100, 0, 0.3)))
+
+# plotting a lognormally distributed variable by quartiles of x
+xgx_plot(data = data) +
+  xgx_stat_ci(mapping = aes(x = x, y = y, colour = covariate),
+              distribution = "lognormal", bins = 4)
+
+# plotting ordinal or multinomial data, by quartiles of x
+xgx_plot(data = data) +
+  xgx_stat_ci(mapping = aes(x = x, response = response, colour = covariate),
+              distribution = "ordinal", bins = 4) +
+  scale_y_continuous(labels = scales::percent_format()) + facet_wrap(~response)
+
+xgx_plot(data = data) +
+  xgx_stat_ci(mapping = aes(x = x, response = response, colour = response),
+              distribution = "ordinal", bins = 4) +
+  scale_y_continuous(labels = scales::percent_format()) + facet_wrap(~covariate)
+
+
+## -----------------------------------------------------------------------------
+set.seed(123456)
+
+Nsubj <- 10
+Doses <- c(0, 25, 50, 100, 200)
+Ntot <- Nsubj*length(Doses)
+times <- c(0,14,30,60,90)
+
+dat1 <- data.frame(ID = 1:(Ntot),
+                   DOSE = rep(Doses, Nsubj),
+                   E0 = 50*rlnorm(Ntot, 0, 0.3),
+                   Emax = 100*rlnorm(Ntot, 0, 0.3),
+                   ED50 = 50*rlnorm(Ntot, 0, 0.3)) %>%
+  dplyr::mutate(Response = (E0 + Emax*DOSE/(DOSE + ED50))*rlnorm(Ntot, 0, 0.3)  ) %>%
+  merge(data.frame(ID = rep(1:(Ntot), each = length(times)), Time = times), by = "ID") 
+
+gg <- xgx_plot(data = dat1, aes(x = DOSE, y = Response))
+gg <- gg + geom_point()
+gg
+
+gg + geom_smooth(method = "nlsLM", 
+                 formula = y ~ E0 + Emax*x/(ED50 + x),
+                 method.args = list(start = list(E0 = 1, ED50 = 1, Emax = 1),
+                                    lower = c(-Inf, 0, -Inf)))
+
+## -----------------------------------------------------------------------------
+gg + xgx_geom_smooth_emax()
+
+gg + 
+  xgx_geom_smooth_emax(geom = "ribbon", color = "black", fill = NA, linetype = "dashed") + 
+  xgx_geom_smooth_emax(geom = "line", color = "red")
+
+
+## -----------------------------------------------------------------------------
+
+# example with ordinal data (method = "polr")
+set.seed(12345)
+data = data.frame(x = 120*exp(stats::rnorm(100,0,1)),
+                  response = sample(c("Mild","Moderate","Severe"), 100, replace = TRUE),
+                  covariate = sample(c("Male","Female"), 100, replace = TRUE)) %>%
+  dplyr::mutate(y = (50 + 20*x/(200 + x))*exp(stats::rnorm(100, 0, 0.3)))
+
+# example coloring by the response categories
+xgx_plot(data = data) +
+  xgx_stat_smooth(mapping = ggplot2::aes(x = x, response = response,
+                                         colour = response, fill = response),
+                  method = "polr") +
+  ggplot2::scale_y_continuous(labels = scales::percent_format())
+
+# example faceting by the response categories, coloring by a different covariate
+xgx_plot(data = data) +
+  xgx_stat_smooth(mapping = ggplot2::aes(x = x, response = response,
+                                         colour = covariate, fill = covariate),
+                  method = "polr", level = 0.80) +
+  ggplot2::facet_wrap(~response) +
+  ggplot2::scale_y_continuous(labels = scales::percent_format())
+
 
 ## -----------------------------------------------------------------------------
 df <- data.frame(x = c(0, stats::rlnorm(1000, 0, 1)),

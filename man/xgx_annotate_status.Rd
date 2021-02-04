@@ -24,7 +24,7 @@ xgx_annotate_status(
 
 \item{y}{y location, default Inf (up most point)}
 
-\item{color}{default "grey"}
+\item{color}{font color, default "grey"}
 
 \item{hjust}{horizontal justification, default 1.2}
 
