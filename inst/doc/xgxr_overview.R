@@ -195,6 +195,21 @@ gg +
 
 
 ## -----------------------------------------------------------------------------
+mod <- nlsLM(formula = Response ~ E0 + Emax * DOSE / (ED50 + DOSE),
+             data = dat1,
+             start = list(E0 = 1, ED50 = 1, Emax = 1),
+                                    lower = c(-Inf, 0, -Inf))
+
+predict(mod,
+            newdata = data.frame(DOSE = c(0, 25, 50, 100, 200)),
+            se.fit = TRUE)
+
+predict(mod,
+            newdata = data.frame(DOSE = c(0, 25, 50, 100, 200)),
+            se.fit = TRUE, interval = "confidence", level = 0.95)
+
+
+## -----------------------------------------------------------------------------
 
 # example with ordinal data (method = "polr")
 set.seed(12345)
